@@ -1,4 +1,4 @@
-# 🍅 Tomato Novel (番茄短篇AI创作)
+# 🍅 Tomato Novel (番茄短篇AI创作)V0.1
 
 > **Guided Supernova 驱动的沉浸式 AI 短篇小说创作引擎**
 

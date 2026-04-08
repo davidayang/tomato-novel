@@ -56,15 +56,15 @@ async def list_configs(config_type: str = None, db: AsyncSession = Depends(get_d
 @router.post("/configs")
 async def create_config(data: ApiConfigCreate, db: AsyncSession = Depends(get_db)):
     if data.is_default:
-        # 取消同类型的其他默认
+        # 启用此项，则关闭同类型其他项
         result = await db.execute(
             select(ApiConfig).where(
                 ApiConfig.config_type == data.config_type,
-                ApiConfig.is_default == True,
             )
         )
         for c in result.scalars().all():
             c.is_default = False
+            c.is_active = False
 
     config = ApiConfig(
         config_type=data.config_type,
@@ -74,6 +74,7 @@ async def create_config(data: ApiConfigCreate, db: AsyncSession = Depends(get_db
         base_url=data.base_url,
         model=data.model,
         is_default=data.is_default,
+        is_active=data.is_default, # 如果设为默认则自动激活
     )
     db.add(config)
     await db.commit()
@@ -88,19 +89,30 @@ async def update_config(config_id: str, data: ApiConfigUpdate, db: AsyncSession 
     if not config:
         raise HTTPException(404, "配置不存在")
 
+    # 如果要设为默认/激活此项
     if data.is_default:
+        # 关闭同类型下所有其他项
         result = await db.execute(
             select(ApiConfig).where(
                 ApiConfig.config_type == config.config_type,
-                ApiConfig.is_default == True,
                 ApiConfig.id != config_id,
             )
         )
         for c in result.scalars().all():
             c.is_default = False
+            c.is_active = False
+        
+        # 强制同步 default 和 active
+        config.is_default = True
+        config.is_active = True
+    elif data.is_default is False:
+        # 如果关闭当前唯一活跃项，可能需要考虑是否允许全部停用
+        config.is_default = False
+        config.is_active = False
 
     for field, value in data.model_dump(exclude_unset=True).items():
-        setattr(config, field, value)
+        if field not in ['is_default', 'is_active']:
+            setattr(config, field, value)
 
     await db.commit()
     return {"message": "更新成功"}
@@ -115,6 +127,25 @@ async def delete_config(config_id: str, db: AsyncSession = Depends(get_db)):
     await db.delete(config)
     await db.commit()
     return {"message": "删除成功"}
+
+
+@router.post("/configs/test")
+async def test_raw_config(data: ApiConfigCreate):
+    """测试还未保存的配置"""
+    if data.config_type == "text":
+        service = TextAIService(
+            api_key=data.api_key,
+            base_url=data.base_url,
+            model=data.model,
+        )
+        return await service.test_connection()
+    else:
+        service = ImageAIService(
+            api_key=data.api_key,
+            base_url=data.base_url,
+            model=data.model,
+        )
+        return await service.test_connection()
 
 
 @router.post("/configs/{config_id}/test")

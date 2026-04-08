@@ -27,19 +27,15 @@
 - **Evolve (演化)**：世界观、力量体系、角色动态成长线。
 - **... (全链路覆盖)**：直至“坍缩精修”，确保每一字句都符合情绪节奏。
 
-### 🧠 全向 AI 适配 (Omni-AI Integration)
-本系统采用高度抽象的 AI 核心接口，完美适配全球主流大模型服务，为您提供最极致的语义推演能力：
-- **OpenAI 协议深度兼容**：原生支持 GPT-4o, GPT-4 Turbo 等全系列模型。
-- **Anthropic 极速连接**：全面兼容 Claude 3.5 Sonnet / Opus 强大的逻辑推理。
-- **国产大模型底座**：深度优化 DeepSeek-V3, Qwen-Max, 智谱 GLM 等高性能国产核心。
-- **Google Gemini 接入**：支持利用 Gemini 1.5 Pro 的长上下文能力进行全书逻辑审查。
-- **自动备选切换 (Fallback)**：内置智能路由，当主 API 遭遇波动时，系统将毫秒级切换至备选模型，确保创作灵感“永不断电”。
-
-### 🎭 叙事导游 (The AI Oracle)
-摒弃传统的单向输入。AI 通过分步式对话与您共创。它会针对您的每一个灵感碎片，提供 5 个以上具有“番茄味”的专业修订版本，协助您快速锁定最能引爆流量的叙事切入点。
+### 🧠 智能 API 控制塔 (Deep Space API Command)
+本系统提供了工业级的 API 管理矩阵，采用 **Guided Supernova** 视觉语言重构，实现了从配置到诊断的全链路闭环：
+- **实时连通性诊断**：内置实时握手测试，在保存配置前即可验证 API KEY 与 Endpoint 的有效性。
+- **单核启用模型 (Singleton Enable)**：采用互斥激活逻辑，确保每种创作能力（文字/图片）由唯一的、确定的主模型驱动，消除配置冲突。
+- **适配器智能感知**：内置对主流提供商（DeepSeek, OpenAI, Anthropic 等）的智能适配，自动预填最佳实践参数。
+- **全向 AI 适配 (Omni-AI Integration)**：原生支持 OpenAI 协议兼容的所有主流模型，包括 DeepSeek-V3, Claude 3.5, Gemini 1.5, Qwen 等。
 
 ### 🎨 沉浸式视觉系统 (Guided Supernova)
-采用极高饱和度的霓虹色彩（Neon Cyan & Cyber Pink）、玻璃拟态（Glassmorphism）面板以及动态流光连线。界面本身即为灵感的催化剂，旨在创造一个高专注度、低认知摩擦的创作环境。
+采用极高饱和度的霓虹色彩（Neon Cyan & Cyber Pink）、40px 级雷达网格背景、玻璃拟态（Glassmorphism）面板以及动态流光连线。界面本身即为灵感的催化剂，旨在创造一个高专注度、低认知摩擦的创作环境。
 
 ## 🛠️ 技术底座
 

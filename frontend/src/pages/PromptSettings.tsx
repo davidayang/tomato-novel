@@ -1,151 +1,207 @@
-import { useState } from 'react';
 import { Typography } from 'antd';
+import { 
+  BulbOutlined, 
+  ThunderboltOutlined, 
+  GlobalOutlined, 
+  ApiOutlined, 
+  ClusterOutlined, 
+  UserOutlined, 
+  DeploymentUnitOutlined, 
+  CheckCircleOutlined,
+  PlusOutlined,
+  RightOutlined,
+  BlockOutlined,
+  NodeIndexOutlined,
+  ReadOutlined,
+  RocketOutlined,
+  EyeOutlined,
+  ScissorOutlined,
+  ProjectOutlined,
+  AuditOutlined
+} from '@ant-design/icons';
 
 const { Paragraph } = Typography;
 
-// ===== 模拟数据 =====
-const MOCK_PROMPTS = [
-  { id: '1', title: '硬核科幻世界观构建', desc: '基于费米悖论与热力学第二定律，构建一个处于资源枯竭边缘的戴森球社会...', category: 'HARD SCI-FI', color: '#ff7afb', time: '2小时前使用', tags: '#CYBERPUNK' },
-  { id: '2', title: '悬疑小说转折点生成', desc: '在第三章结尾引入一个颠覆主角身份的证据，通过不可靠叙事手法增加逻辑闭环...', category: 'SUSPENSE', color: '#ff833f', time: '昨日使用', tags: '#MYSTERY' },
-  { id: '3', title: '赛博朋克对话风格修正', desc: '将标准中文对话转化为具有高科技、低生活质感的街道黑话，融合俚语与仿生技术术语...', category: 'AI MASTER', color: '#00e3fd', time: '15分钟前使用', featured: true },
-  { id: '4', title: '克苏鲁神话氛围渲染', desc: '通过描述非几何图形的建筑与无法名状的低语，营造一种人类认知边界崩溃的绝望感...', category: 'FANTASY', color: '#64748b', time: '3天前使用', tags: '#HORROR' },
-  { id: '5', title: '人物性格弧光映射', desc: '根据主角的初始缺陷，设计三个递进的冲突事件，强制其做出违背本能的选择以实现成长...', category: 'LOGIC', color: '#64748b', time: '1周前使用', tags: '#CHARACTER' },
+// ===== 超细化项目流程流水线 (Detailed Step-by-Step) =====
+const PROMPT_PIPELINE = [
+  { 
+    phase: 'PHASE I: THE GENESIS · 创世起源', 
+    color: '#00e3fd',
+    steps: [
+      { id: '1', title: '核心灵感提炼', desc: '从原始创意中萃取核心核动力点。', category: 'STEP_01_A', icon: <BulbOutlined /> },
+      { id: '2', title: '流行类型推荐', desc: '结合市场趋势分析最契合的网文频道。', category: 'STEP_01_B', icon: <DeploymentUnitOutlined /> },
+      { id: '3', title: '点击震撼书名', desc: '生成具有极强传播力的作品名称系统。', category: 'STEP_01_C', icon: <ThunderboltOutlined /> },
+    ]
+  },
+  { 
+    phase: 'PHASE II: THE PRISM · 棱镜解析', 
+    color: '#ff7afb',
+    steps: [
+      { id: '4', title: '最优叙事视角', desc: '确定第一、第三或上帝视角的沉浸逻辑。', category: 'STEP_02_A', icon: <EyeOutlined /> },
+      { id: '5', title: '色彩视觉基调', desc: '分析作品的艺术张力与色彩氛围模型。', category: 'STEP_02_B', icon: <ApiOutlined /> },
+      { id: '6', title: '底层叙事推演', desc: '初步推导演化故事的基本演进方向。', category: 'STEP_02_C', icon: <RocketOutlined /> },
+    ]
+  },
+  { 
+    phase: 'PHASE III: THE SKELETON · 骨架构建', 
+    color: '#ff833f',
+    steps: [
+      { id: '7', title: '三幕式核心弧线', desc: '确立起承转合的核心逻辑转折点。', category: 'STEP_03_A', icon: <NodeIndexOutlined /> },
+      { id: '8', title: '关键冲突矩阵', desc: '设定维持章节期待感的冲突引爆点。', category: 'STEP_03_B', icon: <ScissorOutlined /> },
+      { id: '9', title: '剧情伏笔规划', desc: '在文本流中预埋长线逻辑的奇草异蛇。', category: 'STEP_03_C', icon: <ClusterOutlined /> },
+    ]
+  },
+  { 
+    phase: 'PHASE IV: THE LIFE · 生命降临', 
+    color: '#00f2fe',
+    steps: [
+      { id: '10', title: '主角全维侧写', desc: '定义人设的欲望、缺陷与成长曲线。', category: 'STEP_04_A', icon: <UserOutlined /> },
+      { id: '11', title: '反派动机对冲', desc: '赋予对手自洽且致命的镜像逻辑。', category: 'STEP_04_B', icon: <UserOutlined /> },
+      { id: '12', title: '配角功能定位', desc: '确立小说中每一片绿叶的叙事职能。', category: 'STEP_04_C', icon: <NodeIndexOutlined /> },
+    ]
+  },
+  { 
+    phase: 'PHASE V: THE CANVAS · 维度建构', 
+    color: '#f9d423',
+    steps: [
+      { id: '13', title: '世界底层法则', desc: '锁定逻辑边界，防止设定崩坏。', category: 'STEP_05_A', icon: <GlobalOutlined /> },
+      { id: '14', title: '关键道具/系统', desc: '设计支撑剧情爽点的金手指机制。', category: 'STEP_05_B', icon: <BlockOutlined /> },
+      { id: '15', title: '社会权力肌理', desc: '构建世界动态平衡的各种利益集团。', category: 'STEP_05_C', icon: <ProjectOutlined /> },
+    ]
+  },
+  { 
+    phase: 'PHASE VI: THE RESONANCE · 共振输出', 
+    color: '#7ed56f',
+    steps: [
+      { id: '16', title: '黄金开篇渲染', desc: '将指令坍缩为高沉浸感的开头段落。', category: 'STEP_06_A', icon: <ReadOutlined /> },
+      { id: '17', title: '对话流抛光', desc: '强化人物对白的信息密度与性格化。', category: 'STEP_06_B', icon: <ReadOutlined /> },
+      { id: '18', title: '感官描写注入', desc: '增强视觉、听觉等维度的环境描写。', category: 'STEP_06_C', icon: <GlobalOutlined /> },
+    ]
+  },
+  { 
+    phase: 'PHASE VII: THE POLISH · 坍缩精修', 
+    color: '#64748b',
+    steps: [
+      { id: '19', title: '语体风格校测', desc: '确保全篇文字质感的极致统一。', category: 'STEP_07_A', icon: <CheckCircleOutlined /> },
+      { id: '20', title: '安全性终审', desc: '执行敏感词库扫描并优化长句通顺度。', category: 'STEP_07_B', icon: <AuditOutlined /> },
+    ]
+  }
 ];
 
 export default function PromptSettings() {
-  const [prompts] = useState(MOCK_PROMPTS);
-
   return (
-    <div style={{ padding: '40px 48px', maxWidth: 1400, margin: '0 auto', position: 'relative', overflow: 'hidden' }}>
+    <div style={{ padding: '80px 48px', maxWidth: 1240, margin: '0 auto', position: 'relative', background: '#0a0e14', minHeight: '100vh', color: '#fff' }}>
       
       {/* 🌌 Atmospheric Backdrop */}
-      <div style={{ position: 'absolute', top: '-10%', right: '-10%', width: '40vw', height: '40vw', background: 'rgba(255,122,251,0.05)', borderRadius: '50%', filter: 'blur(120px)', pointerEvents: 'none', zIndex: 1 }} />
-      <div style={{ position: 'absolute', bottom: '-5%', left: '10%', width: '35vw', height: '35vw', background: 'rgba(0,227,253,0.04)', borderRadius: '50%', filter: 'blur(100px)', pointerEvents: 'none', zIndex: 1 }} />
+      <div style={{ position: 'absolute', top: '0', right: '0', width: '60vw', height: '60vw', background: 'radial-gradient(circle, rgba(255,122,251,0.03) 0%, transparent 70%)', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', bottom: '0', left: '-10%', width: '50vw', height: '50vw', background: 'radial-gradient(circle, rgba(0,227,253,0.02) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
       <div style={{ position: 'relative', zIndex: 10 }}>
         {/* 页头 */}
-        <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 56, flexWrap: 'wrap', gap: 20 }}>
-          <div>
-            <h1 style={{ fontSize: 44, fontWeight: 700, fontFamily: 'Newsreader, serif', margin: 0, letterSpacing: '-0.02em', color: '#f1f3fc' }}>提示词矩阵</h1>
-            <p style={{ color: '#64748b', marginTop: 10, maxWidth: 500, fontSize: 16 }}>管理您的叙事核心。每一条提示词都是一颗即将引爆宇宙的创意奇点。</p>
-          </div>
-          <button style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'rgba(0,227,253,0.1)', color: '#00e3fd', fontWeight: 900, padding: '14px 28px', borderRadius: 16, border: '1px solid rgba(0,227,253,0.2)', cursor: 'pointer', fontSize: 15, transition: 'all 0.3s' }}
-            onMouseOver={e => { e.currentTarget.style.background = '#00e3fd'; e.currentTarget.style.color = '#003a42'; }}
-            onMouseOut={e => { e.currentTarget.style.background = 'rgba(0,227,253,0.1)'; e.currentTarget.style.color = '#00e3fd'; }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: 22 }}>add_circle</span>
-            创建新模板
-          </button>
+        <header style={{ marginBottom: 100, textAlign: 'center' }}>
+            <h1 style={{ fontSize: 56, fontWeight: 950, fontStyle: 'italic', fontFamily: 'serif', margin: 0, letterSpacing: '-0.04em', color: '#fff', textShadow: '0 0 30px rgba(255,255,255,0.1)' }}>提示词原子实验室</h1>
+            <p style={{ color: '#94a3b8', marginTop: 24, fontSize: 20, fontWeight: 400, maxWidth: 800, margin: '24px auto 0', lineHeight: 1.6 }}>基于项目原生架构的原子级管理。每一个步骤都是叙事宇宙的坍缩奇点。</p>
         </header>
 
-        {/* 提示词卡片阵列 */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 28 }}>
-          {prompts.map((p) => (
-            <div 
-              key={p.id}
-              className="prompt-card"
-              style={{ 
-                  background: p.featured ? 'linear-gradient(135deg, rgba(21, 26, 33, 0.8), rgba(0, 227, 253, 0.05))' : 'rgba(21, 26, 33, 0.4)', 
-                  backdropFilter: 'blur(12px)',
-                  borderRadius: 24, 
-                  padding: 32, 
-                  border: `1px solid ${p.featured ? 'rgba(0, 227, 253, 0.2)' : 'rgba(255, 255, 255, 0.05)'}`, 
-                  transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)', 
-                  cursor: 'pointer',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  minHeight: 280,
-                  boxShadow: p.featured ? '0 12px 40px rgba(0, 227, 253, 0.1)' : 'none'
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-                <span style={{ 
-                  fontSize: 10, fontWeight: 900, letterSpacing: '0.15em', padding: '4px 10px', 
-                  borderRadius: 6, background: `${p.color}15`, color: p.color, border: `1px solid ${p.color}25`,
-                  textTransform: 'uppercase'
-                }}>
-                  {p.category}
-                </span>
-                <div className="card-actions" style={{ display: 'flex', gap: 6, opacity: 0.4, transition: 'opacity 0.3s' }}>
-                  <span className="material-symbols-outlined nav-icon" style={{ fontSize: 18 }}>edit</span>
-                  <span className="material-symbols-outlined nav-icon" style={{ fontSize: 18 }}>delete</span>
-                </div>
-              </div>
+        {/* 🚀 超细化流程序列界面 */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 0, position: 'relative', paddingLeft: 40 }}>
+          
+          {/* ⚡ 全局发光轴轨 (Master Arc) */}
+          <div style={{ 
+              position: 'absolute', 
+              left: 39, 
+              top: 40, 
+              bottom: 40, 
+              width: 1, 
+              background: 'linear-gradient(to bottom, transparent, #00e3fd, #ff7afb, #ff833f, #00f2fe, #f9d423, #7ed56f, transparent)', 
+              boxShadow: '0 0 10px rgba(0,227,253,0.2)',
+              zIndex: 0 
+          }} />
 
-              <h3 className="serif-text prompt-title" style={{ fontSize: 22, fontWeight: 700, color: p.featured ? '#00e3fd' : '#f1f3fc', marginBottom: 16, transition: 'all 0.3s' }}>{p.title}</h3>
-              <Paragraph style={{ color: p.featured ? '#a8abb3' : '#64748b', fontSize: 14, lineHeight: 1.8, marginBottom: 32, flex: 1 }}>{p.desc}</Paragraph>
+          {PROMPT_PIPELINE.map((phase, pIdx) => (
+            <section key={pIdx} style={{ position: 'relative', zIndex: 1, marginBottom: 100 }}>
               
-              <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: 20 }}>
-                {p.featured ? (
-                  <div style={{ height: 4, width: '100%', background: 'rgba(0,227,253,0.1)', borderRadius: 4, overflow: 'hidden', marginBottom: 18 }}>
-                    <div style={{ width: '85%', height: '100%', background: '#00e3fd', boxShadow: '0 0 10px rgba(0,227,253,0.5)' }}></div>
-                  </div>
-                ) : (
-                  <div style={{ height: 1, width: '100%', background: 'linear-gradient(90deg, transparent, rgba(0,227,253,0.2), transparent)', marginBottom: 20 }} />
-                )}
-                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 10, color: '#475569', fontWeight: 600, textTransform: 'uppercase' }}>
-                       <span className="material-symbols-outlined" style={{ fontSize: 14 }}>history</span> {p.time}
-                    </div>
-                    {p.tags && <span style={{ fontSize: 10, fontWeight: 900, color: '#475569', letterSpacing: '0.05em' }}>{p.tags}</span>}
-                    {p.featured && <span style={{ fontSize: 10, fontWeight: 900, color: '#00e3fd' }}>高频使用</span>}
+              {/* 阶段大类标志 (Category Landmark) */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 32, marginBottom: 48, marginLeft: -40 }}>
+                 <div style={{ 
+                    width: 80, height: 80, borderRadius: '50%',
+                    background: 'rgba(10, 14, 20, 0.95)', border: `1px solid ${phase.color}`, 
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                    boxShadow: `0 0 40px ${phase.color}15`, zIndex: 2,
+                    fontSize: 28, fontWeight: 950, color: phase.color
+                 }}>
+                    {pIdx + 1}
+                 </div>
+                 <div style={{ transform: 'translateY(2px)' }}>
+                    <h2 style={{ fontSize: 14, fontWeight: 950, color: phase.color, letterSpacing: 4, textTransform: 'uppercase', margin: 0 }}>{phase.phase}</h2>
+                    <div style={{ height: 1, width: 120, background: `linear-gradient(90deg, ${phase.color}, transparent)`, marginTop: 12 }} />
                  </div>
               </div>
-            </div>
+
+              {/* 该大类下的 细化卡片列表 */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: 20, paddingLeft: 80 }}>
+                 {phase.steps.map((s) => (
+                   <div 
+                    key={s.id}
+                    className="atomic-card"
+                    style={{ 
+                      background: 'rgba(21, 26, 33, 0.3)', 
+                      backdropFilter: 'blur(30px)', 
+                      borderRadius: 16, 
+                      padding: '20px 24px', 
+                      border: '1px solid rgba(255,255,255,0.03)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 20,
+                      transition: 'all 0.4s ease-out',
+                      cursor: 'pointer',
+                      position: 'relative'
+                    }}
+                   >
+                     {/* 编号装饰 */}
+                     <div style={{ position: 'absolute', right: 20, top: 12, fontSize: 10, fontWeight: 900, color: phase.color, opacity: 0.2, letterSpacing: 1 }}>
+                        #{s.id.padStart(2,'0')}
+                     </div>
+
+                     <div style={{ 
+                        width: 48, height: 48, borderRadius: 12, background: `${phase.color}05`, 
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, 
+                        border: `1px solid ${phase.color}10`, fontSize: 24, color: phase.color 
+                     }}>
+                        {s.icon}
+                     </div>
+
+                     <div style={{ flex: 1 }}>
+                        <h3 style={{ fontSize: 16, fontWeight: 700, color: '#f1f3fc', margin: '0 0 4px 0' }}>{s.title}</h3>
+                        <Paragraph style={{ color: '#64748b', fontSize: 12, margin: 0, lineHeight: 1.5 }}>{s.desc}</Paragraph>
+                     </div>
+
+                     <div className="card-arrow" style={{ opacity: 0, transition: '0.3s' }}>
+                        <RightOutlined style={{ color: phase.color, fontSize: 14 }} />
+                     </div>
+                   </div>
+                 ))}
+                 
+                 {/* 极简原子插槽 */}
+                 <div style={{ 
+                    borderRadius: 16, border: '1px dashed rgba(255,255,255,0.05)', 
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, cursor: 'pointer', 
+                    opacity: 0.3, transition: 'all 0.3s', color: '#64748b', height: 88
+                  }} onMouseOver={e=>e.currentTarget.style.opacity='0.8'} onMouseOut={e=>e.currentTarget.style.opacity='0.3'}>
+                    <PlusOutlined style={{ fontSize: 16 }} />
+                    <span style={{ fontSize: 12, fontWeight: 600 }}>注入原子节点</span>
+                 </div>
+              </div>
+
+            </section>
           ))}
-
-          {/* 新增占位符 */}
-          <div style={{ 
-            borderRadius: 24, padding: 32, border: '2px dashed rgba(255, 255, 255, 0.05)', 
-            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', 
-            gap: 16, cursor: 'pointer', transition: 'all 0.3s' 
-          }}
-          className="prompt-add-placeholder"
-          onMouseOver={e => { e.currentTarget.style.borderColor = '#ff7afb40'; e.currentTarget.style.background = 'rgba(255,122,251,0.02)'; }}
-          onMouseOut={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)'; e.currentTarget.style.background = 'transparent'; }}
-          >
-             <div style={{ width: 56, height: 56, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: 32, color: '#475569' }}>add</span>
-             </div>
-             <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 16, fontWeight: 700, color: '#64748b' }}>创建新模板</div>
-                <div style={{ fontSize: 11, color: '#334155', marginTop: 4 }}>向宇宙发射新的创意脉冲</div>
-             </div>
-          </div>
-        </div>
-
-        {/* 底部统计 */}
-        <div style={{ 
-          marginTop: 64, padding: '40px 60px', background: 'rgba(15, 20, 26, 0.4)', 
-          backdropFilter: 'blur(24px)', borderRadius: 32, border: '1px solid rgba(255,255,255,0.05)',
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 40
-        }}>
-           <div style={{ display: 'flex', gap: 80, flexWrap: 'wrap' }}>
-              <div>
-                 <div style={{ fontSize: 32, fontWeight: 700, color: '#00e3fd', fontFamily: 'Newsreader, serif' }}>42</div>
-                 <div style={{ fontSize: 10, color: '#444', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: 4 }}>已存提示词</div>
-              </div>
-              <div>
-                 <div style={{ fontSize: 32, fontWeight: 700, color: '#ff7afb', fontFamily: 'Newsreader, serif' }}>12.5k</div>
-                 <div style={{ fontSize: 10, color: '#444', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: 4 }}>累计调用次数</div>
-              </div>
-              <div>
-                 <div style={{ fontSize: 32, fontWeight: 700, color: '#ff833f', fontFamily: 'Newsreader, serif' }}>98%</div>
-                 <div style={{ fontSize: 10, color: '#444', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: 4 }}>生成转化率</div>
-              </div>
-           </div>
-           <div style={{ display: 'flex', gap: 12 }}>
-              <button style={{ padding: '10px 20px', borderRadius: 12, border: '1px solid rgba(0,227,253,0.2)', background: 'transparent', color: '#00e3fd', fontSize: 12, fontWeight: 900, cursor: 'pointer' }}>导出提示词包</button>
-              <button style={{ padding: '10px 20px', borderRadius: 12, border: '1px solid rgba(255,122,251,0.2)', background: 'transparent', color: '#ff7afb', fontSize: 12, fontWeight: 900, cursor: 'pointer' }}>云端同步</button>
-           </div>
         </div>
       </div>
 
       <style>{`
-        .prompt-card:hover { transform: translateY(-8px); border-color: rgba(255, 122, 251, 0.3) !important; background: rgba(21, 26, 33, 0.8) !important; }
-        .prompt-card:hover .card-actions { opacity: 1 !important; }
-        .prompt-card:hover .prompt-title { color: #ff7afb !important; }
-        .card-actions span:hover { color: #00e3fd; transform: scale(1.2); }
+        .atomic-card:hover { transform: translateY(-4px); border-color: rgba(255,255,255,0.08) !important; background: rgba(30, 36, 45, 0.6) !important; box-shadow: 0 12px 24px rgba(0,0,0,0.4); }
+        .atomic-card:hover .card-arrow { opacity: 1 !important; transform: translateX(4px); }
+        .atomic-card:hover h3 { color: #fff !important; }
       `}</style>
     </div>
   );

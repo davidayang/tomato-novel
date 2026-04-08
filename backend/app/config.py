@@ -18,8 +18,11 @@ class Settings(BaseSettings):
     text_model: str = "gpt-4o-mini"
     text_temperature: float = 0.7
     text_max_tokens: int = 4096
+    text_reasoning_effort: str = "medium"  # xhigh / high / medium / low
+    text_context_window: int = 128000
+    text_auto_compact_limit: int = 100000
 
-    # 备选文本API
+    # 备选文本API (Review Model)
     text_fallback_provider: str = ""
     text_fallback_api_key: str = ""
     text_fallback_api_base_url: str = ""

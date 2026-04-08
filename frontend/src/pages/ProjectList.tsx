@@ -171,7 +171,7 @@ export default function ProjectList() {
     if (!activeProjectId) return;
     setWizardLoading(true);
     try {
-      const fieldMap: any = { '书名': 'title', '类型': 'genre', '主题': 'theme', '叙事视角': 'perspective' };
+      const fieldMap: any = { '书名': 'title', '简介': 'description', '类型': 'genre', '主题': 'theme', '叙事视角': 'perspective' };
       const internalField = fieldMap[field] || field;
       
       await projectsApi.update(activeProjectId, { [internalField]: value });
@@ -217,7 +217,6 @@ export default function ProjectList() {
         idea: abstract.trim(),
         genre: genres.join(','),
         theme: theme.trim(),
-        description: abstract.trim(),
         perspective: perspective,
         characters_count: characters,
         target_words: wordCount,

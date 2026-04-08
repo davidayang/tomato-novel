@@ -222,7 +222,6 @@ export default function ProjectList() {
         characters_count: characters,
         target_words: wordCount,
       });
-      message.success('创作蓝图已生成');
       setActiveProjectId(res.data.id);
       setIsModalOpen(false);
       resetForm();

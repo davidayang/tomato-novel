@@ -1,0 +1,124 @@
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+  /* 🌌 Deep Space Color Logic (Exact Hex Codes from Design Spec) */
+  --background: #0a0e14;
+  --surface: #0a0e14;
+  --surface-bright: #262c36;
+  --surface-dim: #0a0e14;
+  
+  --surface-container-lowest: #000000;
+  --surface-container-low: #0f141a;
+  --surface-container: #151a21;
+  --surface-container-high: #1b2028;
+  --surface-container-highest: #20262f;
+  
+  /* 🧪 Neon Energy Accents */
+  --primary: #ff7afb;           /* Ignition */
+  --primary-dim: #ed6ae9;
+  --primary-container: #440046;
+  --on-primary-container: #f06cec;
+  
+  --secondary: #00e3fd;         /* Flow */
+  --secondary-dim: #00d4ec;
+  --secondary-container: #006875;
+  
+  --tertiary: #ff833f;          /* Heat */
+  --tertiary-container: #fd6c00;
+  
+  --error: #ff6e84;
+  --outline-variant: rgba(68, 72, 79, 0.15); /* Ghost Border */
+}
+
+/* 🖋️ Typography: The Literary Future */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--background);
+  color: #f1f3fc;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.serif-text, .font-serif, h1, h2, h3, .story-title {
+  font-family: 'Newsreader', serif !important;
+}
+
+/* 🖼️ Atmospheric Effects */
+.glass-panel {
+  background: rgba(32, 38, 47, 0.6) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.modal-glass {
+  background: rgba(10, 14, 20, 0.85) !important;
+  backdrop-filter: blur(40px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* ⚡ Glow & Intensity Shadows (No-Black-Shadows Rule) */
+.active-glow {
+  box-shadow: 0 0 24px -12px rgba(255, 122, 251, 0.4) !important;
+}
+
+.glow-primary {
+  box-shadow: 0 8px 32px -8px rgba(255, 122, 251, 0.3) !important;
+}
+
+.glow-secondary {
+  box-shadow: 0 8px 32px -8px rgba(0, 227, 253, 0.3) !important;
+}
+
+/* 🧠 Story Nodes (Neural Filaments) */
+.node-line {
+  stroke: rgba(0, 227, 253, 0.1);
+  stroke-width: 1px;
+  fill: none;
+}
+
+/* 🚀 Component Polishing */
+.ant-btn {
+  font-family: 'Inter', sans-serif !important;
+  letter-spacing: 0.5px !important;
+  text-transform: uppercase !important;
+  font-weight: 700 !important;
+  border: none !important;
+}
+
+.ant-btn-primary {
+  background: var(--primary) !important;
+  color: #57005a !important;
+  box-shadow: 0 8px 24px rgba(255, 122, 251, 0.2) !important;
+}
+
+.ant-card {
+  background: var(--surface-container-low) !important;
+  border: 1px solid var(--outline-variant) !important;
+  border-radius: 20px !important;
+}
+
+/* 🖱️ Global Reset for Alignment */
+* {
+  box-sizing: border-box;
+}
+
+/* 🌊 Scrollbar Aesthetic */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--surface-container-highest);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}

@@ -349,19 +349,20 @@ export default function ProjectList() {
               <h3 className="serif-text story-title" style={{ fontSize: 24, fontWeight: 700, color: '#f1f3fc', marginBottom: 14, transition: 'color 0.3s' }}>{p.title}</h3>
               <Paragraph style={{ color: '#a8abb3', fontSize: 14, lineHeight: 1.8, height: 50, overflow: 'hidden', marginBottom: 32, opacity: 0.8 }}>{p.idea}</Paragraph>
               
-              <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: 20 }}>
-                 <div style={{ height: 4, width: '100%', background: 'rgba(255,255,255,0.05)', borderRadius: 4, overflow: 'hidden', marginBottom: 18 }}>
-                    <div style={{ width: `${p.progress}%`, height: '100%', background: idx === 0 ? 'linear-gradient(90deg, #00e3fd, #ff7afb)' : '#334155', boxShadow: idx === 0 ? '0 0 10px rgba(0,227,253,0.3)' : 'none' }}></div>
-                 </div>
-                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 10, color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                       <span className="material-symbols-outlined" style={{ fontSize: 14 }}>history</span> {p.time}
-                    </div>
-                    <Text style={{ fontSize: 12, fontWeight: 900, color: '#ff7afb', letterSpacing: '0.02em' }}>
-                      {(!p.title || p.title === '未完成的星云' || !p.genre) ? '补全内核' : '进入中枢'} <span style={{ fontSize: 14 }}>→</span>
-                    </Text>
-                 </div>
-              </div>
+                  <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: 20 }}>
+                     <div style={{ height: 4, width: '100%', background: 'rgba(255,255,255,0.05)', borderRadius: 4, overflow: 'hidden', marginBottom: 18 }}>
+                        <div style={{ width: `${Math.min(100, Math.round(((p.wizard_step || 0) / 6) * 100))}%`, height: '100%', background: idx === 0 ? 'linear-gradient(90deg, #00e3fd, #ff7afb)' : '#334155', boxShadow: idx === 0 ? '0 0 10px rgba(0,227,253,0.3)' : 'none' }}></div>
+                     </div>
+                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 10, color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                           <span className="material-symbols-outlined" style={{ fontSize: 14 }}>history</span> 
+                           {p.updated_at ? new Date(p.updated_at).toLocaleString('zh-CN', { hour12: false, month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : '刚刚'}
+                        </div>
+                        <Text style={{ fontSize: 12, fontWeight: 900, color: '#ff7afb', letterSpacing: '0.02em' }}>
+                          {(!p.title || p.title === '未完成的星云' || !p.genre) ? '补全内核' : '进入中枢'} <span style={{ fontSize: 14 }}>→</span>
+                        </Text>
+                     </div>
+                  </div>
             </div>
           ))}
         </div>

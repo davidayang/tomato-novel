@@ -63,20 +63,36 @@ async def step_nucleus(
 
     ai_service = await get_ai_service_from_project(project, db)
 
-    # 确定目标字段 (书名 -> 类型 -> 主题 -> 视角)
+    # 确定目标字段 (书名 -> 简介 -> 类型 -> 主题 -> 视角)
     target_field = field
     if not target_field:
         if project.title == "未完成的星云" or not project.title: target_field = "书名"
+        elif not project.description: target_field = "简介"
         elif not project.genre: target_field = "类型"
         elif not project.theme: target_field = "主题"
         elif project.perspective == "自动分析" or not project.perspective: target_field = "叙事视角"
         else: return {"status": "done", "analysis": "所有内核节点已锁定。"}
 
-    context_str = f"初始简介：{project.idea}\n"
+    context_str = f"初始灵感：{project.idea}\n"
     if project.title and project.title != "未完成的星云": context_str += f"已锁定的书名：{project.title}\n"
+    if project.description: context_str += f"已锁定的简介：{project.description}\n"
     if project.genre: context_str += f"已确定的类型：{project.genre}\n"
     
     direction_str = f"\n用户当前的反馈方向是：【{direction}】。请基于此方向进行深度头脑风暴。" if direction else ""
+
+    # 针对简介的特殊引导 (番茄短篇套路)
+    description_guide = ""
+    if target_field == "简介":
+        description_guide = """
+注意：当前处于【简介】精细雕琢阶段。
+请根据用户的初始灵感和书名，套用【番茄短篇】爆款模板进行重构。
+核心套路参考：
+1. 【反差钩子】：身份的极度反差（如：落魄千金vs顶级财阀，外卖员vs隐世神医）。
+2. 【情绪共鸣】：极致的委屈求全、华丽的复仇回归、或令人泪目的双向奔赴。
+3. 【快节奏切入】：不写废话，第一句就必须有悬念或冲突（如：“结婚三周年，他亲手将我送进监狱”）。
+4. 【碎片化表达】：句子简短有力，富有画面感。
+要求：提供5个不同侧重点的简介版本，每个版本150-250字。
+"""
 
     # 针对类型的特殊引导
     genre_guide = ""
@@ -110,6 +126,7 @@ async def step_nucleus(
 {context_str}
 ---
 {direction_str}
+{description_guide}
 {genre_guide}
 {perspective_guide}
 

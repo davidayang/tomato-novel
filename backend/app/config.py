@@ -6,7 +6,7 @@ BASE_DIR = Path(__file__).parent.parent
 
 class Settings(BaseSettings):
     app_name: str = "番茄短篇创作工具"
-    app_version: str = "0.1.0"
+    app_version: str = "0.3.0"
     debug: bool = True
 
     database_url: str = f"sqlite+aiosqlite:///{BASE_DIR / 'data.db'}"

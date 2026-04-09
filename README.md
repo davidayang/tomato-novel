@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/davidayan/tomato-novel/main/docs/assets/hero.png" width="800" alt="Tomato Novel Hero">
+  <img src="https://raw.githubusercontent.com/davidayang/tomato-novel/main/docs/assets/hero.png" width="800" alt="Tomato Novel Hero">
   <h1>🍅 TOMATO NOVEL</h1>
   <p><b>The Immersive AI Narrative Engine powered by Guided Supernova Design</b></p>
 

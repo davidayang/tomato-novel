@@ -1,12 +1,12 @@
 <div align="center">
   <img src="https://raw.githubusercontent.com/davidayang/tomato-novel/main/docs/assets/hero.png" width="800" alt="Tomato Novel Hero">
   <h1>🍅 TOMATO NOVEL</h1>
-  <p><b>The Immersive AI Narrative Engine powered by Guided Supernova Design</b></p>
+  <p><b>基于星源视觉规范构建的沉浸式 AI 叙事引擎</b></p>
 
   <div>
-    <img src="https://img.shields.io/badge/Design-Guided--Supernova-ff7afb?style=for-the-badge" alt="Design">
-    <img src="https://img.shields.io/badge/Stack-React%2019%20%7C%20FastAPI%20%7C%20SQLite-00e3fd?style=for-the-badge" alt="Stack">
-    <img src="https://img.shields.io/badge/Engine-DeepSeek--V3.1-blue?style=for-the-badge" alt="Engine">
+    <img src="https://img.shields.io/badge/设计规范-Guided--Supernova-ff7afb?style=for-the-badge" alt="Design">
+    <img src="https://img.shields.io/badge/技术栈-React%2019%20%7C%20FastAPI%20%7C%20SQLite-00e3fd?style=for-the-badge" alt="Stack">
+    <img src="https://img.shields.io/badge/核心引擎-DeepSeek--V3.1-blue?style=for-the-badge" alt="Engine">
   </div>
 </div>
 

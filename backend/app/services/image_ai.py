@@ -77,14 +77,26 @@ class ImageAIService:
 
     async def test_connection(self) -> dict:
         """测试图片API连接"""
+        import time
+        start_time = time.time()
         try:
             url = f"{self.base_url}/models"
             async with httpx.AsyncClient(timeout=30) as client:
                 resp = await client.get(url, headers=self._get_headers())
                 resp.raise_for_status()
-            return {"success": True, "message": "连接成功"}
+            latency = (time.time() - start_time) * 1000
+            return {
+                "success": True, 
+                "message": "连接成功", 
+                "latency": round(latency, 2)
+            }
         except Exception as e:
-            return {"success": False, "message": str(e)}
+            latency = (time.time() - start_time) * 1000
+            return {
+                "success": False, 
+                "message": str(e),
+                "latency": round(latency, 2)
+            }
 
     @classmethod
     def from_db_config(cls, configs: list) -> "ImageAIService":

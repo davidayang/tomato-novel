@@ -43,6 +43,7 @@ async def list_configs(config_type: str = None, db: AsyncSession = Depends(get_d
             "config_type": c.config_type,
             "provider": c.provider,
             "name": c.name or c.provider,
+            "api_key": c.api_key,
             "api_key_masked": c.api_key[:8] + "****" if c.api_key and len(c.api_key) > 8 else "****",
             "base_url": c.base_url,
             "model": c.model,

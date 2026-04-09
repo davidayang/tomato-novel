@@ -11,6 +11,7 @@ import {
 } from '@ant-design/icons';
 import { Dropdown } from 'antd';
 import { projectsApi, wizardApi } from '../api';
+import { logUserAction } from '../components/DebugConsole';
 
 const { Text, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -99,12 +100,27 @@ export default function ProjectList() {
   const [wizardSelectedGenres, setWizardSelectedGenres] = useState<string[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const resetWizard = () => {
-    setChatMessages([]);
-    setCurrentFieldToFix(null);
-    setChatInput('');
-    setWizardMode('selecting');
-    setWizardSelectedGenres([]);
+  const reconstructWizardHistory = (p: any) => {
+    const history: any[] = [];
+    if (p.idea) {
+      history.push({ id: 'h-idea', role: 'user', content: `初始灵感：${p.idea}`, timestamp: '历史回溯' });
+    }
+    if (p.title && p.title !== '未完成的星云') {
+      history.push({ id: 'h-title', role: 'user', content: `锁定【书名】：${p.title}`, timestamp: '历史回溯' });
+    }
+    if (p.description) {
+      history.push({ id: 'h-desc', role: 'user', content: `锁定【简介】：${p.description}`, timestamp: '历史回溯' });
+    }
+    if (p.genre) {
+      history.push({ id: 'h-genre', role: 'user', content: `锁定【类型】：${p.genre}`, timestamp: '历史回溯' });
+    }
+    if (p.theme) {
+      history.push({ id: 'h-theme', role: 'user', content: `锁定【主题】：${p.theme}`, timestamp: '历史回溯' });
+    }
+    if (p.perspective && p.perspective !== '自动分析') {
+      history.push({ id: 'h-persp', role: 'user', content: `锁定【叙事视角】：${p.perspective}`, timestamp: '历史回溯' });
+    }
+    return history;
   };
 
   useEffect(() => {
@@ -175,6 +191,7 @@ export default function ProjectList() {
       const internalField = fieldMap[field] || field;
       
       await projectsApi.update(activeProjectId, { [internalField]: value });
+      logUserAction("Wizard", `锁定【${field}】`, `选择项: ${value}`);
       
       setChatMessages(prev => [...prev, {
         id: Math.random().toString(),
@@ -197,6 +214,8 @@ export default function ProjectList() {
       ? `好的，请在下方详细描述您心仪的【${currentFieldToFix}】方向，我为您重新推演。`
       : `明白。请直接在下方输入您最终决定的【${currentFieldToFix}】内容。`;
     
+    logUserAction("Wizard", `切换为自定义模式: ${type}`, `针对字段: ${currentFieldToFix}`);
+
     setChatMessages(prev => [...prev, {
       id: 'action-' + Date.now(),
       role: 'assistant',
@@ -221,10 +240,12 @@ export default function ProjectList() {
         characters_count: characters,
         target_words: wordCount,
       });
+      logUserAction("ProjectList", "创建新篇章", `书名: ${title.trim() || '未完成'}`);
       setActiveProjectId(res.data.id);
       setIsModalOpen(false);
       resetForm();
-      resetWizard();
+      const history = reconstructWizardHistory(res.data);
+      setChatMessages(history);
       setIsWizardModalOpen(true);
       startSupplementation(res.data.id);
       loadProjects(); // 动态刷新列表
@@ -283,7 +304,10 @@ export default function ProjectList() {
                 if (isIncomplete) {
                   const isSameProject = p.id === activeProjectId;
                   setActiveProjectId(p.id);
-                  if (!isSameProject) resetWizard(); // 只有切换项目时才清空
+                  if (!isSameProject) {
+                    const history = reconstructWizardHistory(p);
+                    setChatMessages(history);
+                  }
                   setIsWizardModalOpen(true);
                   startSupplementation(p.id);
                 } else {
@@ -717,8 +741,10 @@ export default function ProjectList() {
                     timestamp: '刚刚'
                   }]);
                   if (wizardMode === 'refine') {
+                    logUserAction("Wizard", "用户指令定位", `引导方向: ${text}`);
                     startSupplementation(activeProjectId, currentFieldToFix, text);
                   } else {
+                    logUserAction("Wizard", "用户手动锁定", `输入内容: ${text}`);
                     handleOptionSelect(currentFieldToFix, text);
                   }
                   setChatInput('');

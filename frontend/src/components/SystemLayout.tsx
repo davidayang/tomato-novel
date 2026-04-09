@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
+import DebugConsole from './DebugConsole';
 
 export default function SystemLayout() {
   const navigate = useNavigate();
@@ -150,6 +151,8 @@ export default function SystemLayout() {
             <Outlet />
         </main>
       </div>
+
+      <DebugConsole />
 
       <style>{`
         .nav-icon { color: #64748b; cursor: pointer; transition: all 0.2s; font-size: 22px; }

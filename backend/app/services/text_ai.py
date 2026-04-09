@@ -4,6 +4,8 @@ import json
 import asyncio
 from typing import AsyncGenerator, Optional
 from app.config import settings
+from app.services.debug_logger import DebugLogger
+import time
 
 
 class TextAIService:
@@ -49,13 +51,19 @@ class TextAIService:
         system_prompt: str = "",
         temperature: float = None,
         max_tokens: int = None,
+        step: str = "General"
     ) -> str:
         """生成文本，失败自动尝试备选"""
+        start_time = time.time()
         try:
-            return await self._call_api(
+            full_prompt = f"[System] {system_prompt}\n[User] {prompt}"
+            response = await self._call_api(
                 self.api_key, self.base_url, self.model,
                 system_prompt, prompt, temperature, max_tokens
             )
+            latency = (time.time() - start_time) * 1000
+            DebugLogger.log_llm_call(step, self.model, full_prompt, response, round(latency, 2))
+            return response
         except Exception as e:
             if self.fallback_api_key and self.fallback_base_url:
                 print(f"主API失败({e})，切换备选...")
@@ -71,14 +79,21 @@ class TextAIService:
         system_prompt: str = "",
         temperature: float = None,
         max_tokens: int = None,
+        step: str = "Stream"
     ) -> AsyncGenerator[str, None]:
         """流式生成文本"""
+        start_time = time.time()
+        full_response = []
+        full_prompt = f"[System] {system_prompt}\n[User] {prompt}"
         try:
             async for chunk in self._call_api_stream(
                 self.api_key, self.base_url, self.model,
                 system_prompt, prompt, temperature, max_tokens
             ):
+                full_response.append(chunk)
                 yield chunk
+            latency = (time.time() - start_time) * 1000
+            DebugLogger.log_llm_call(step, self.model, full_prompt, "".join(full_response), round(latency, 2))
         except Exception as e:
             if self.fallback_api_key and self.fallback_base_url:
                 print(f"主流式API失败({e})，切换备选...")
@@ -96,9 +111,10 @@ class TextAIService:
         system_prompt: str = "",
         temperature: float = None,
         max_tokens: int = None,
+        step: str = "General"
     ) -> dict:
         """生成并解析JSON"""
-        text = await self.generate(prompt, system_prompt, temperature, max_tokens)
+        text = await self.generate(prompt, system_prompt, temperature, max_tokens, step=step)
         text = text.strip()
         # 清理markdown代码块
         if text.startswith("```"):
@@ -171,11 +187,24 @@ class TextAIService:
 
     async def test_connection(self) -> dict:
         """测试API连接"""
+        import time
+        start_time = time.time()
         try:
             result = await self.generate("回复OK", system_prompt="你是一个测试助手", max_tokens=10)
-            return {"success": True, "message": "连接成功", "response": result}
+            latency = (time.time() - start_time) * 1000
+            return {
+                "success": True, 
+                "message": "连接成功", 
+                "response": result, 
+                "latency": round(latency, 2)
+            }
         except Exception as e:
-            return {"success": False, "message": str(e)}
+            latency = (time.time() - start_time) * 1000
+            return {
+                "success": False, 
+                "message": str(e),
+                "latency": round(latency, 2)
+            }
 
     @classmethod
     def from_db_config(cls, configs: list) -> "TextAIService":

@@ -11,7 +11,7 @@ from app.database import init_db
 from app.services.prompt_service import PromptService
 from app.database import async_session
 
-from app.api import configs, prompts, projects, characters, wizard, content, impact, regenerate, export
+from app.api import configs, prompts, projects, characters, wizard, content, impact, regenerate, export, debug
 
 
 @asynccontextmanager
@@ -50,6 +50,7 @@ app.include_router(content.router)
 app.include_router(impact.router)
 app.include_router(regenerate.router)
 app.include_router(export.router)
+app.include_router(debug.router)
 
 
 @app.get("/health")

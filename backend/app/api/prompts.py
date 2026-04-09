@@ -11,44 +11,54 @@ router = APIRouter(prefix="/api", tags=["提示词管理"])
 class PromptUpdate(BaseModel):
     content: str
 
+class PromptCreate(BaseModel):
+    key: str
+    name: str
+    category: str
+    content: str
+
 
 @router.get("/prompts")
 async def list_prompts(db: AsyncSession = Depends(get_db)):
+    # 第一次访问可能需要初始化
+    await PromptService.init_default_prompts(db)
+    
     prompts = await PromptService.get_all_prompts(db)
     return [
         {
+            "id": p.id,
             "key": p.key,
             "name": p.name,
             "category": p.category,
             "content": p.content,
             "is_custom": p.is_custom,
+            "is_active": p.is_active,
         }
         for p in prompts
     ]
 
 
-@router.get("/prompts/{key}")
-async def get_prompt(key: str, db: AsyncSession = Depends(get_db)):
-    try:
-        content = await PromptService.get_prompt(db, key)
-        return {"key": key, "content": content}
-    except KeyError:
-        raise HTTPException(404, "提示词模板不存在")
+@router.post("/prompts")
+async def create_prompt(data: PromptCreate, db: AsyncSession = Depends(get_db)):
+    template = await PromptService.add_custom_prompt(
+        db, data.key, data.name, data.category, data.content
+    )
+    return {"message": "创建成功", "id": template.id}
 
 
-@router.put("/prompts/{key}")
-async def update_prompt(key: str, data: PromptUpdate, db: AsyncSession = Depends(get_db)):
-    try:
-        template = await PromptService.update_prompt(db, key, data.content)
-        return {"message": "更新成功", "is_custom": template.is_custom}
-    except KeyError:
-        raise HTTPException(404, "提示词模板不存在")
+@router.put("/prompts/{prompt_id}")
+async def update_prompt(prompt_id: str, data: PromptUpdate, db: AsyncSession = Depends(get_db)):
+    template = await PromptService.update_prompt_content(db, prompt_id, data.content)
+    return {"message": "更新成功"}
 
 
-@router.post("/prompts/{key}/reset")
-async def reset_prompt(key: str, db: AsyncSession = Depends(get_db)):
-    try:
-        template = await PromptService.reset_prompt(db, key)
-        return {"message": "已重置为默认", "content": template.content}
-    except KeyError:
-        raise HTTPException(404, "提示词模板不存在")
+@router.post("/prompts/{prompt_id}/activate")
+async def activate_prompt(prompt_id: str, key: str, db: AsyncSession = Depends(get_db)):
+    await PromptService.update_active_status(db, prompt_id, key)
+    return {"message": "已设为当前在用"}
+
+
+@router.delete("/prompts/{prompt_id}")
+async def delete_prompt(prompt_id: str, db: AsyncSession = Depends(get_db)):
+    await PromptService.delete_prompt(db, prompt_id)
+    return {"message": "删除成功"}

@@ -72,11 +72,11 @@ async def step_nucleus(
     # 确定目标字段 (书名 -> 简介 -> 类型 -> 主题 -> 视角)
     target_field = field
     if not target_field:
-        if project.title == "未完成的星云" or not project.title: target_field = "书名"
-        elif not project.description: target_field = "简介"
+        if not project.title or project.title == "未完成的星云": target_field = "书名"
+        elif not project.description and not project.idea: target_field = "简介"
         elif not project.genre: target_field = "类型"
         elif not project.theme: target_field = "主题"
-        elif project.perspective == "自动分析" or not project.perspective: target_field = "叙事视角"
+        elif not project.perspective or project.perspective == "自动分析": target_field = "叙事视角"
         else: return {"status": "done", "analysis": "所有内核节点已锁定。"}
 
     context_str = f"初始灵感：{project.idea}\n"
@@ -103,9 +103,10 @@ async def step_nucleus(
         target_option_count=target_option_count
     )
 
-    return StreamingResponse(
-        ai_service.generate_stream(final_prompt, system_prompt="你是一位擅长打造爆款的资深网文主编"),
-        media_type="text/event-stream"
+    return await ai_service.generate_json(
+        final_prompt, 
+        system_prompt="你是一位擅长打造爆款的资深网文主编",
+        step=target_field
     )
 
 
@@ -121,7 +122,7 @@ async def step1_type_analysis(project_id: str, db: AsyncSession = Depends(get_db
     prompt_template = await PromptService.get_prompt(db, "type_analysis")
     prompt = PromptService.format_prompt(prompt_template, idea=project.idea or "")
 
-    data = await ai_service.generate_json(prompt)
+    data = await ai_service.generate_json(prompt, step="type_analysis")
 
     project.genre = data.get("genre", "")
     project.audience = data.get("audience", "")
@@ -151,7 +152,7 @@ async def step2_word_plan(project_id: str, target_words: int = 20000, db: AsyncS
         target_words=target_words
     )
 
-    data = await ai_service.generate_json(prompt)
+    data = await ai_service.generate_json(prompt, step="word_plan")
     project.target_words = target_words
     # 这里通常会创建节奏点记录，暂时跳过
     
@@ -177,7 +178,7 @@ async def step3_conflict_world(project_id: str, db: AsyncSession = Depends(get_d
         idea=project.idea
     )
 
-    data = await ai_service.generate_json(prompt)
+    data = await ai_service.generate_json(prompt, step="conflict_and_world")
     project.core_conflict = data.get("core_conflict", "")
     # 世界观设定通常存储在单独的表，这里暂存
     
@@ -203,7 +204,7 @@ async def step4_characters(project_id: str, db: AsyncSession = Depends(get_db)):
         world_setting="由核心冲突推演" 
     )
 
-    data = await ai_service.generate_json(prompt)
+    data = await ai_service.generate_json(prompt, step="character_suggestion")
     # 写入角色表
     for char_data in data:
         char = Character(

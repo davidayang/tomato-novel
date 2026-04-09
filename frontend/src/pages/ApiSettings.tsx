@@ -33,6 +33,7 @@ export default function ApiSettings() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [testLoading, setTestLoading] = useState<string | null>(null);
   const [showKeys, setShowKeys] = useState<Record<string, boolean>>({});
+  const [securityModalVisible, setSecurityModalVisible] = useState(false);
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -105,12 +106,18 @@ export default function ApiSettings() {
     try {
       const res = await axios.post(`${API_BASE}/configs/${id}/test`);
       if (res.data.success) {
-        message.success('连接成功: ' + (res.data.response || '响应正常'));
+        const latency = res.data.latency ? ` | ⚡ 延迟: ${res.data.latency}ms` : '';
+        message.success({
+          content: `✅ 连接成功${latency} | 响应: ${res.data.response || '通信正常'}`,
+          duration: 5,
+          style: { marginTop: '10vh' }
+        });
       } else {
-        message.error('连接失败: ' + res.data.message);
+        const latency = res.data.latency ? ` (耗时 ${res.data.latency}ms)` : '';
+        message.error(`❌ 连接失败${latency}: ` + res.data.message);
       }
     } catch (err: any) {
-      message.error('测试出错');
+      message.error('🚫 测试异常: 后端服务未响应');
     } finally {
       setTestLoading(null);
     }
@@ -134,15 +141,20 @@ export default function ApiSettings() {
       const values = await form.validateFields();
       const res = await axios.post(`${API_BASE}/configs/test`, values);
       if (res.data.success) {
-        message.success('验证成功: ' + (res.data.response || '配置有效'));
+        const latency = res.data.latency ? ` | ⚡ 延迟: ${res.data.latency}ms` : '';
+        message.success({
+          content: `✅ 验证成功${latency} | 配置有效`,
+          duration: 5
+        });
       } else {
-        message.error('验证失败: ' + res.data.message);
+        const latency = res.data.latency ? ` (测试耗时 ${res.data.latency}ms)` : '';
+        message.error(`❌ 验证失败${latency}: ` + res.data.message);
       }
     } catch (err: any) {
       if (err.errorFields) {
         message.warning('请先完善必要配置');
       } else {
-        message.error('由于网络或配置错误，验证请求失败');
+        message.error('🚫 验证请求失败: 请检查网络连接');
       }
     } finally {
       setTestLoading(null);
@@ -177,7 +189,7 @@ export default function ApiSettings() {
 
         <div className="api-item-middle">
           <div className="key-display-box">
-            <code className="key-code">{isShow ? 'sk-••••••••••••••••' : config.api_key_masked}</code>
+            <code className="key-code">{(isShow ? config.api_key : config.api_key_masked) || '未配置'}</code>
             <Button 
               type="text" 
               size="small" 
@@ -278,8 +290,8 @@ export default function ApiSettings() {
              <img alt="Security chip" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDiDjt01KtrT3tBQ5MnOUheHpK6G-lO-nmHNnA6cT0V-yOSwRaPEJsWVxMeOWuLyq5Kk-g-2BLgLbkMrN11AsbnEX-XfIhgVODdSEHpa9UR3c3InRht_EM2ciUzwr_FZlmYDyccL3ty8PegB7D0DlEbtXP1wLExNk_WhWKJFjdgvuGvDIrXIeKMZ9t1VMEF2whcsxT84ZYwc5nfu8rP8scyk0FKhXwPWBFK8LUH43uCj83kKBl9vr3njKS9vOohZbPDAkjQoDinoKJl" className="banner-img" />
           </div>
           <div className="banner-text-box">
-            <h4 className="banner-title">正在保护 {configs.filter((c: any) => c.is_active).length} 个活跃端点</h4>
-            <p className="banner-desc">您的 API 密钥存储在符合星际标准的高强度加密保险库中。切勿向他人透露您的密钥。查阅 <a href="#" className="banner-link">安全指南</a> 了解更多信息。</p>
+            <h4 className="banner-title">正在保护 {configs.length} 个端点配置</h4>
+            <p className="banner-desc">您的 API 密钥存储在符合星际标准的高强度加密保险库中。切勿向他人透露您的密钥。查阅 <a href="javascript:void(0)" onClick={() => setSecurityModalVisible(true)} className="banner-link">安全指南</a> 了解更多信息。</p>
           </div>
         </div>
       </div>
@@ -401,7 +413,62 @@ export default function ApiSettings() {
         </Form>
       </Modal>
 
+      {/* Sarcastic Security Modal */}
+      <Modal
+        title={null}
+        open={securityModalVisible}
+        onCancel={() => setSecurityModalVisible(false)}
+        footer={null}
+        centered
+        width={420}
+        className="security-sarcasm-modal"
+      >
+        <div className="sarcasm-content">
+          <div className="sarcasm-icon">🛡️</div>
+          <h2 className="sarcasm-title serif-text">《星源安全合规指南》</h2>
+          <div className="sarcasm-body">
+            <p>系统检测到您正在尝试访问最高安全等级文档...</p>
+            <div className="sarcasm-divider" />
+            <p className="main-insult">
+              “大哥，这全是你电脑本地 <code>app.db</code> 里的玩意，
+              除了你自己谁能看见啊？我保护个屁啊！”
+            </p>
+            <p className="sub-insult">
+              提示：只要你别把 API Key 截图发朋友圈或贴在厕所墙上，
+              它就是全宇宙最安全的。别在这瞎操心了，赶紧写你的小说去。
+            </p>
+            <div className="sarcasm-footer">
+              <Button type="primary" block onClick={() => setSecurityModalVisible(false)} className="understood-btn">
+                行行行，我这就去写
+              </Button>
+            </div>
+          </div>
+        </div>
+      </Modal>
+
       <style>{`
+        /* 🛡️ Sarcasm Modal Styles */
+        .security-sarcasm-modal .ant-modal-content {
+          background: rgba(10, 14, 20, 0.95) !important;
+          backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 122, 251, 0.3) !important;
+          border-radius: 24px !important;
+          padding: 32px !important;
+          box-shadow: 0 0 60px rgba(255, 122, 251, 0.1) !important;
+        }
+        .sarcasm-content { text-align: center; }
+        .sarcasm-icon { font-size: 48px; margin-bottom: 16px; filter: drop-shadow(0 0 10px #ff7afb); }
+        .sarcasm-title { color: #ff7afb; font-size: 22px; margin-bottom: 24px; }
+        .sarcasm-body { color: #a8abb3; line-height: 1.6; }
+        .sarcasm-divider { height: 1px; background: rgba(255, 255, 255, 0.1); margin: 16px 0; }
+        .main-insult { color: #f1f3fc; font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+        .sub-insult { font-size: 13px; opacity: 0.7; font-style: italic; }
+        .sarcasm-footer { margin-top: 32px; }
+        .understood-btn {
+          background: #ff7afb !important; border: none !important; height: 44px !important;
+          border-radius: 12px !important; font-weight: 700 !important; color: #57005a !important;
+        }
+
         /* ✨ Global & Variable Overrides */
         .api-page-wrapper { min-height: 100vh; background: #0a0e14; position: relative; color: #f1f3fc; overflow-x: hidden; }
         .page-grid-overlay {
@@ -413,70 +480,73 @@ export default function ApiSettings() {
           z-index: 1;
         }
 
-        .api-content-canvas { position: relative; z-index: 10; padding: 100px 48px 120px; max-width: 1200px; margin: 0 auto; }
+        .api-content-canvas { position: relative; z-index: 10; padding: 40px 48px 60px; max-width: 1200px; margin: 0 auto; }
         
         .serif-text { font-family: 'Newsreader', 'Serif', serif; }
-        .header-title { font-size: 56px; font-weight: 700; margin-bottom: 8px; tracking-tight; }
-        .header-desc { font-size: 16px; color: #a8abb3; max-width: 500px; margin-bottom: 48px; }
+        .header-title { font-size: 32px; font-weight: 700; margin-bottom: 4px; tracking-tight; }
+        .header-desc { font-size: 14px; color: #a8abb3; max-width: 500px; margin-bottom: 24px; }
+        .canvas-header { margin-bottom: 32px; position: relative; }
 
         .configure-new-btn {
-          position: absolute; top: 110px; right: 48px;
+          position: absolute; top: 0px; right: 0px;
           display: flex; align-items: center; gap: 8px;
           background: #ff7afb; color: #57005a; font-weight: 800;
-          padding: 14px 28px; border-radius: 12px; border: none; cursor: pointer;
+          padding: 10px 20px; border-radius: 10px; border: none; cursor: pointer;
           box-shadow: 0 10px 30px rgba(255, 122, 251, 0.2);
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          font-size: 13px;
         }
-        .configure-new-btn:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 15px 40px rgba(255, 122, 251, 0.3); }
+        .configure-new-btn:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 15px 40px rgba(255, 122, 251, 0.3); }
 
-        .api-sections-stack { display: flex; flex-direction: column; gap: 64px; }
-        .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 32px; }
-        .section-bar { width: 6px; height: 24px; border-radius: 10px; }
-        .section-title { font-size: 32px; font-weight: 700; margin: 0; }
+        .api-sections-stack { display: flex; flex-direction: column; gap: 32px; }
+        .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+        .section-bar { width: 4px; height: 18px; border-radius: 10px; }
+        .section-title { font-size: 20px; font-weight: 700; margin: 0; }
 
-        .api-items-grid { display: flex; flex-direction: column; gap: 16px; }
+        .api-items-grid { display: flex; flex-direction: column; gap: 12px; }
         .api-item-row {
           background: rgba(15, 20, 26, 0.5); backdrop-filter: blur(12px);
-          border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px;
-          padding: 24px 32px; display: flex; align-items: center; justify-content: space-between;
+          border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px;
+          padding: 12px 20px; display: flex; align-items: center; justify-content: space-between;
           transition: all 0.3s;
         }
-        .api-item-row:hover { border-color: rgba(255, 255, 255, 0.1); background: rgba(25, 30, 38, 0.6); transform: translateX(4px); }
+        .api-item-row:hover { border-color: rgba(255, 255, 255, 0.1); background: rgba(25, 30, 38, 0.6); transform: translateX(2px); }
         .disabled-config { opacity: 0.5; filter: grayscale(0.8); }
 
-        .api-item-left { display: flex; align-items: center; gap: 24px; min-width: 280px; }
-        .api-icon-container { width: 56px; height: 56px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
-        .api-title { font-size: 20px; font-weight: 700; color: #f1f3fc; margin: 0; display: flex; align-items: center; gap: 10px; }
-        .default-indicator { width: 8px; height: 8px; border-radius: 50%; box-shadow: 0 0 10px currentColor; }
-        .api-provider { font-size: 11px; color: #64748b; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.1em; }
+        .api-item-left { display: flex; align-items: center; gap: 16px; min-width: 240px; }
+        .api-icon-container { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+        .api-icon-container .material-symbols-outlined { font-size: 20px; }
+        .api-title { font-size: 16px; font-weight: 700; color: #f1f3fc; margin: 0; display: flex; align-items: center; gap: 8px; }
+        .default-indicator { width: 6px; height: 6px; border-radius: 50%; box-shadow: 0 0 8px currentColor; }
+        .api-provider { font-size: 10px; color: #64748b; margin-top: 1px; text-transform: uppercase; letter-spacing: 0.1em; }
 
-        .api-item-middle { flex: 1; max-width: 400px; padding: 0 32px; }
+        .api-item-middle { flex: 1; max-width: 380px; padding: 0 20px; }
         .key-display-box {
           background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.05);
-          border-radius: 10px; padding: 10px 16px; display: flex; align-items: center; gap: 12px;
+          border-radius: 8px; padding: 6px 12px; display: flex; align-items: center; gap: 10px;
         }
-        .key-code { flex: 1; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #64748b; overflow: hidden; text-overflow: ellipsis; }
-        .key-action-btn { color: #445166 !important; padding: 0 !important; cursor: pointer; }
+        .key-code { flex: 1; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #64748b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .key-action-btn { color: #445166 !important; padding: 0 !important; cursor: pointer; height: 20px !important; }
 
-        .api-item-right { display: flex; align-items: center; gap: 48px; }
+        .api-item-right { display: flex; align-items: center; gap: 32px; }
         .status-badge-container { display: flex; align-items: center; }
         .switch-active .ant-switch-inner { background: #00e3fd !important; }
 
-        .api-actions { display: flex; align-items: center; gap: 12px; }
-        .api-actions button { color: #445166; padding: 8px !important; }
+        .api-actions { display: flex; align-items: center; gap: 8px; }
+        .api-actions button { color: #445166; padding: 4px !important; }
         .api-actions button:hover { background: rgba(255,255,255,0.05) !important; color: #f1f3fc; }
-        .default-star { font-size: 18px; filter: drop-shadow(0 0 8px currentColor); }
+        .default-star { font-size: 14px; filter: drop-shadow(0 0 8px currentColor); }
 
         .security-banner {
-          margin-top: 100px; padding: 48px; border-radius: 24px;
+          margin-top: 40px; padding: 24px 32px; border-radius: 16px;
           border: 1px solid rgba(0, 227, 253, 0.1);
           background: linear-gradient(90deg, rgba(0, 227, 253, 0.05) 0%, transparent 100%);
-          display: flex; align-items: center; gap: 48px;
+          display: flex; align-items: center; gap: 32px;
         }
-        .banner-visual { flex-shrink: 0; width: 120px; height: 120px; }
+        .banner-visual { flex-shrink: 0; width: 60px; height: 60px; }
         .banner-img { width: 100%; height: 100%; object-fit: contain; opacity: 0.8; filter: hue-rotate(20deg); }
-        .banner-title { font-size: 22px; font-weight: 700; color: #f1f3fc; margin-bottom: 8px; }
-        .banner-desc { color: #64748b; font-size: 14px; margin: 0; line-height: 1.6; }
+        .banner-title { font-size: 16px; font-weight: 700; color: #f1f3fc; margin-bottom: 4px; }
+        .banner-desc { color: #64748b; font-size: 12px; margin: 0; line-height: 1.4; }
 
         /* 💎 AI Dialog Inspired Modal Style */
         .guided-modal-glass .ant-modal-content {
